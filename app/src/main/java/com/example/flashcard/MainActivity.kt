@@ -3,17 +3,17 @@ package com.example.flashcard
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Bookmark
-import androidx.compose.material.icons.filled.Computer
-import androidx.compose.material.icons.filled.NoteAdd
-import androidx.compose.material.icons.filled.VisibilityOff
-import androidx.compose.runtime.Composable
+import androidx.compose.material.icons.filled.*
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -21,6 +21,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.constraintlayout.compose.ConstraintLayout
 import com.example.flashcard.ui.theme.DeepOrange
 import com.example.flashcard.ui.theme.FlashcardTheme
 
@@ -46,25 +47,89 @@ fun Greeting(name: String) {
 @Preview(showBackground = true)
 @Composable
 fun DefaultPreview() {
-    Column{
-        DeckItem()
+    Column(modifier = Modifier.padding(8.dp)) {
+        DeckTitleTextField()
 
-        DeckInSubject()
-        MakeMyDeck()
-        SubjectItem()
-        CardItem()
+        Row() {
+
+        }
+
+
     }
 }
 
 @Composable
-fun DeckItem() {
-    Column(modifier = Modifier
-        .fillMaxWidth()
-        .border(
-            width = 2.dp,
-            color = Color.LightGray
+fun DeckInSubject() {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .border(
+                width = 2.dp,
+                color = Color.LightGray
+            )
+            .clickable {
+
+            }
+            .padding(16.dp)
+    ) {
+        Text(
+            text = "recursion",
+            style = MaterialTheme.typography.h5,
+            fontWeight = FontWeight.Bold
         )
-        .padding(8.dp)) {
+        Spacer(modifier = Modifier.height(4.dp))
+        Text(
+            text = "8 Cards",
+            style = MaterialTheme.typography.subtitle1,
+            fontWeight = FontWeight.Bold,
+            color = Color.Gray
+        )
+    }
+}
+
+@Composable
+fun StudyGuide() {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .border(
+                width = 2.dp,
+                color = Color.LightGray
+            )
+            .clickable {
+
+            }
+            .padding(16.dp)) {
+        Text(
+            text = "c-plus-plus",
+            style = MaterialTheme.typography.h5,
+            fontWeight = FontWeight.Bold
+        )
+        Spacer(modifier = Modifier.height(4.dp))
+        Text(
+            text = "12 Decks · 207 Cards",
+            style = MaterialTheme.typography.subtitle1,
+            fontWeight = FontWeight.Bold,
+            color = Color.Gray
+        )
+    }
+}
+
+
+@Composable
+fun DeckItem() {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .border(
+                width = 2.dp,
+                color = Color.LightGray
+            )
+            .clickable {
+
+            }
+            .padding(16.dp)
+    ) {
         Text(
             text = "recursion",
             style = MaterialTheme.typography.h5,
@@ -91,16 +156,20 @@ fun DeckItem() {
 }
 
 @Composable
-fun DeckInSubject() {
-    Column(modifier = Modifier
-        .fillMaxWidth()
-        .border(
-            width = 2.dp,
-            color = Color.LightGray
-        )
-        .padding(8.dp)) {
+fun MyDeckItem() {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .border(
+                width = 2.dp,
+                color = Color.LightGray
+            )
+            .clickable {
+
+            }
+            .padding(16.dp)) {
         Text(
-            text = "c-plus-plus",
+            text = "recursion",
             style = MaterialTheme.typography.h5,
             fontWeight = FontWeight.Bold
         )
@@ -110,17 +179,18 @@ fun DeckInSubject() {
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
             Text(
-                text = "12 Decks ∙ 207 Cards",
+                text = "11 Cards",
                 style = MaterialTheme.typography.subtitle1,
                 fontWeight = FontWeight.Bold,
                 color = Color.Gray
             )
             Icon(
                 imageVector = Icons.Default.VisibilityOff,
-                contentDescription = "Visibility Off",
+                contentDescription = "visibility_off",
                 tint = Color.Gray
             )
         }
+
     }
 }
 
@@ -176,10 +246,6 @@ fun SubjectItem() {
                 width = 2.dp,
                 color = Color.LightGray
             )
-                .clip(shape = RoundedCornerShape(size = 8.dp))
-                .clickable {
-
-                }
             .padding(20.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
@@ -209,12 +275,199 @@ fun CardItem() {
             modifier = Modifier.padding(16.dp),
             fontWeight = FontWeight.ExtraBold
         )
-        Divider(modifier = Modifier.fillMaxWidth().height(2.dp), color = Color.LightGray)
+        Divider(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(2.dp), color = Color.LightGray
+        )
         Text(
             text = "A request to execute an OS service-layer function",
             modifier = Modifier.padding(16.dp),
             color = Color.Gray,
             fontWeight = FontWeight.Bold
+        )
+    }
+}
+
+@Composable
+fun CardItemField() {
+    val (frontText, setFrontText) = remember {
+        mutableStateOf("")
+    }
+
+    val (backText, setBackText) = remember {
+        mutableStateOf("")
+    }
+
+    Box(
+        modifier = Modifier
+            .fillMaxWidth(.8f)
+            .border(2.dp, Color.LightGray)
+    ){
+        ConstraintLayout {
+            val (front,back,delete,divider) = createRefs()
+            TextField(
+                value = frontText,
+                onValueChange = setFrontText,
+                modifier = Modifier
+                    .constrainAs(front) {
+                        top.linkTo(parent.top) //자신의 top을 parent의 top에 배치한다
+                    }
+                    .fillMaxWidth()
+                    .padding(8.dp),
+                textStyle = MaterialTheme.typography.h6,
+                placeholder = {
+                    Text(
+                        text = "Front",
+                        style = MaterialTheme.typography.h6,
+                        fontWeight = FontWeight.ExtraBold,
+                        color = Color.LightGray
+                    )
+                },
+                colors = TextFieldDefaults.textFieldColors(
+                    cursorColor = DeepOrange,
+                    backgroundColor = Color.Transparent,
+                    focusedIndicatorColor = Color.Transparent,
+                    unfocusedIndicatorColor = Color.Transparent
+                ),
+                maxLines = 2
+            )
+            Divider(
+                modifier = Modifier
+                    .constrainAs(divider){
+                        top.linkTo(front.bottom)
+                    }
+                    .fillMaxWidth()
+                    .height(2.dp),
+                color = Color.LightGray
+            )
+
+        }
+    }
+}
+
+@Composable
+fun FilterText(text: String, selected: Boolean, onClick: () -> Unit) {
+    Row(
+        modifier = Modifier
+            .clip(CircleShape)
+            .clickable(enabled = !selected, onClick = onClick)
+            .background(color = if (selected) Color.LightGray else Color.Transparent)
+            .padding(horizontal = 20.dp, vertical = 2.dp)
+
+    ) {
+        Text(text = text, style = MaterialTheme.typography.body1, fontWeight = FontWeight.ExtraBold)
+    }
+}
+
+@Composable
+fun FilterSection(selectedFilterIndex: Int, setIndex: (Int) -> Unit) {
+    Row {
+        FilterText("All", selectedFilterIndex == 0) { setIndex(0) }
+        Spacer(modifier = Modifier.width(8.dp))
+        FilterText("Bookmarks", selectedFilterIndex == 1) { setIndex(1) }
+        Spacer(modifier = Modifier.width(8.dp))
+        FilterText("Created", selectedFilterIndex == 2) { setIndex(2) }
+    }
+}
+
+
+@Preview
+@Composable
+fun HomeScreen() {
+    var (selectedFilterIndex, setFilterIndex) = remember {
+        mutableStateOf(0)
+    }
+    Scaffold(
+        topBar = {
+            Column(
+                modifier = Modifier.padding(
+                    top = 8.dp,
+                    bottom = 4.dp,
+                    start = 16.dp,
+                    end = 16.dp
+                )
+            ) {
+                Text(
+                    text = "CheggPrep",
+                    style = MaterialTheme.typography.h5,
+                    color = DeepOrange,
+                    fontWeight = FontWeight.Bold
+                )
+
+                Spacer(modifier = Modifier.height(24.dp))
+                FilterSection(selectedFilterIndex, setFilterIndex)
+            }
+        }
+    ) {
+        LazyColumn(modifier = Modifier.padding(16.dp)) {
+            repeat(20) {
+                item {
+                    DeckItem()
+                }
+                item {
+                    Spacer(modifier = Modifier.height(8.dp))
+                }
+            }
+        }
+    }
+}
+
+@Composable
+fun DeckTitleTextField() {
+
+    var text by remember {
+        mutableStateOf("")
+    }
+
+    Column(modifier = Modifier.fillMaxWidth()) {
+        TextField(
+            value = text, onValueChange = { newText -> text = newText },
+            modifier = Modifier.fillMaxWidth(),
+            textStyle = MaterialTheme.typography.h4,
+            placeholder = {
+                Text(
+                    text = "Untitled deck",
+                    style = MaterialTheme.typography.h4,
+                    fontWeight = FontWeight.ExtraBold,
+                    color = Color.LightGray
+                )
+            },
+            colors = TextFieldDefaults.textFieldColors(
+                cursorColor = DeepOrange,
+                backgroundColor = Color.Transparent,
+                focusedIndicatorColor = Color.LightGray,
+                unfocusedIndicatorColor = Color.LightGray
+            ),
+            maxLines = 2
+        )
+    }
+}
+
+
+@Composable
+fun FindFlashCards() {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clip(shape = CircleShape)
+            .border(
+                color = Color.LightGray,
+                width = 1.dp,
+                shape = CircleShape
+            )
+            .padding(vertical = 16.dp, horizontal = 8.dp)
+            .clickable { },
+
+        ) {
+        Icon(
+            imageVector = Icons.Default.Search,
+            contentDescription = "search",
+            tint = Color.LightGray
+        )
+        Text(
+            text = "Find flashcards",
+            color = Color.LightGray
         )
     }
 }
