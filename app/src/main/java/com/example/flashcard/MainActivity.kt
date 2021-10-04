@@ -13,6 +13,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
+import androidx.compose.material.icons.outlined.Delete
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -22,6 +23,9 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.constraintlayout.compose.ConstraintLayout
+import com.example.flashcard.models.DECK_ADDED
+import com.example.flashcard.models.DECK_CREATED
+import com.example.flashcard.models.Deck
 import com.example.flashcard.ui.theme.DeepOrange
 import com.example.flashcard.ui.theme.FlashcardTheme
 
@@ -32,7 +36,7 @@ class MainActivity : ComponentActivity() {
             FlashcardTheme {
                 // A surface container using the 'background' color from the theme
                 Surface(color = MaterialTheme.colors.background) {
-                    Greeting("Android")
+                    HomeScreen()
                 }
             }
         }
@@ -117,21 +121,20 @@ fun StudyGuide() {
 
 
 @Composable
-fun DeckItem() {
+fun DeckItem(deck: Deck, modifier : Modifier = Modifier) {
     Column(
-        modifier = Modifier
+        modifier = modifier// -> 전달받은 modifier로 수정
             .fillMaxWidth()
             .border(
                 width = 2.dp,
                 color = Color.LightGray
             )
             .clickable {
-
             }
             .padding(16.dp)
     ) {
         Text(
-            text = "recursion",
+            text = deck.deckTitle,
             style = MaterialTheme.typography.h5,
             fontWeight = FontWeight.Bold
         )
@@ -141,16 +144,37 @@ fun DeckItem() {
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
             Text(
-                text = "8 Cards",
+                text = deck.cardList.size.toString() + if (deck.cardList.size > 1)" Cards" else "Card",
                 style = MaterialTheme.typography.subtitle1,
                 fontWeight = FontWeight.Bold,
                 color = Color.Gray
             )
-            Icon(
-                imageVector = Icons.Default.Bookmark,
-                contentDescription = "bookmark",
-                tint = Color.Gray
-            )
+            when(deck.deckType) {
+                DECK_CREATED -> {
+                    if(deck.shared) {
+                        Icon(
+                            imageVector = Icons.Default.Visibility,
+                            contentDescription = "shared",
+                            tint = Color.Gray
+                        )
+                    }else {
+                        Icon(
+                            imageVector = Icons.Default.VisibilityOff,
+                            contentDescription = "not shared",
+                            tint = Color.Gray
+                        )
+                    }
+                }
+                DECK_ADDED -> {
+                    if(deck.bookmarked){
+                        Icon(
+                            imageVector = Icons.Default.Bookmark,
+                            contentDescription = "bookmark",
+                            tint = Color.Gray
+                        )
+                    }
+                }
+            }
         }
     }
 }
@@ -165,7 +189,6 @@ fun MyDeckItem() {
                 color = Color.LightGray
             )
             .clickable {
-
             }
             .padding(16.dp)) {
         Text(
@@ -289,6 +312,7 @@ fun CardItem() {
     }
 }
 
+@Preview
 @Composable
 fun CardItemField() {
     val (frontText, setFrontText) = remember {
@@ -301,7 +325,7 @@ fun CardItemField() {
 
     Box(
         modifier = Modifier
-            .fillMaxWidth(.8f)
+            .fillMaxWidth()
             .border(2.dp, Color.LightGray)
     ){
         ConstraintLayout {
@@ -334,13 +358,53 @@ fun CardItemField() {
             )
             Divider(
                 modifier = Modifier
-                    .constrainAs(divider){
+                    .constrainAs(divider) {
                         top.linkTo(front.bottom)
                     }
                     .fillMaxWidth()
                     .height(2.dp),
                 color = Color.LightGray
             )
+            TextField(
+                value = backText,
+                onValueChange = setBackText,
+                modifier = Modifier
+                    .constrainAs(back) {
+                        // 본인의 top을 divider의 bottom에 붙인다.
+                        top.linkTo(divider.bottom)
+                    }
+                    .fillMaxWidth()
+                    .fillMaxHeight()
+                    .padding(8.dp),
+                textStyle = MaterialTheme.typography.body1,
+                placeholder = {
+                    Text(
+                        text = "Back",
+                        style = MaterialTheme.typography.body1,
+                        fontWeight = FontWeight.ExtraBold,
+                        color = Color.LightGray
+                    )
+                },
+                colors = TextFieldDefaults.textFieldColors(
+                    cursorColor = DeepOrange,
+                    backgroundColor = Color.Transparent,
+                    focusedIndicatorColor = Color.Transparent,
+                    unfocusedIndicatorColor = Color.Transparent
+                )
+            )
+            IconButton(
+                onClick = {
+
+                },
+                modifier = Modifier
+                    .constrainAs(delete) {
+                        bottom.linkTo(parent.bottom, 10.dp)
+                        start.linkTo(parent.start, 8.dp)
+                    }
+            ) {
+                Icon(imageVector = Icons.Outlined.Delete, contentDescription = "delete")
+            }
+
 
         }
     }
@@ -401,13 +465,25 @@ fun HomeScreen() {
         }
     ) {
         LazyColumn(modifier = Modifier.padding(16.dp)) {
-            repeat(20) {
-                item {
-                    DeckItem()
-                }
-                item {
-                    Spacer(modifier = Modifier.height(8.dp))
-                }
+            when (selectedFilterIndex) {
+                0 ->
+                    SampleDataSet.deckSample.forEach {
+                        item {
+                            DeckItem(deck = it, modifier = Modifier.padding(bottom = 8.dp))
+                        }
+                    }
+                1 ->
+                    SampleDataSet.deckSample.filter { it.bookmarked }.forEach {
+                        item {
+                            DeckItem(deck = it, modifier = Modifier.padding(bottom = 8.dp))
+                        }
+                    }
+                2 ->
+                    SampleDataSet.deckSample.filter { it.deckType == DECK_CREATED }.forEach {
+                        item {
+                            DeckItem(deck = it, modifier = Modifier.padding(bottom = 8.dp))
+                        }
+                    }
             }
         }
     }
