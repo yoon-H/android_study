@@ -13,16 +13,14 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
-import androidx.compose.material.icons.outlined.Delete
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.constraintlayout.compose.ConstraintLayout
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
@@ -30,12 +28,16 @@ import com.example.flashcard.navigation.BottomNavigationBar
 import com.example.flashcard.navigation.Screen
 import com.example.flashcard.screens.*
 import com.example.flashcard.ui.theme.DeepOrange
+import com.example.flashcard.viewmodel.CheggViewModel
 
 class MainActivity : ComponentActivity() {
+    @ExperimentalComposeApi
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
             val navController = rememberNavController()
+
+            val cheggViewModel: CheggViewModel = viewModel()
 
             val (bottomBarShown, showBottomBar) = remember {
                 mutableStateOf(true)
@@ -50,19 +52,19 @@ class MainActivity : ComponentActivity() {
                 NavHost(navController = navController, startDestination = Screen.Home.route) {//경로따라 Navigation 이동
                     composable(Screen.Home.route) {
                         showBottomBar(true)
-                        HomeScreen(navController)
+                        HomeScreen(navController, cheggViewModel)
                     }
                     composable(Screen.Search.route) {
                         showBottomBar(true)
-                        SearchScreen(navController)
+                        SearchScreen(navController, cheggViewModel)
                     }
                     composable(Screen.Create.route) {
                         showBottomBar(false)
-                        CreateScreen(navController)
+                        CreateScreen(navController, cheggViewModel)
                     }
                     composable(Screen.More.route) {
                         showBottomBar(true)
-                        MoreScreen(navController)
+                        MoreScreen(navController, cheggViewModel)
                     }
                     composable(Screen.Deck.route + "/{deckTitle}/{cardNum}") { backStackEntry ->
                         // title과 cardsNum을 전달
@@ -276,99 +278,3 @@ fun MyDeckItem() {
 }
 
 
-@Composable
-fun CardItemField() {
-    val (frontText, setFrontText) = remember {
-        mutableStateOf("")
-    }
-
-    val (backText, setBackText) = remember {
-        mutableStateOf("")
-    }
-
-    Box(
-        modifier = Modifier
-            .fillMaxWidth()
-            .border(2.dp, Color.LightGray)
-    ) {
-        ConstraintLayout {
-            val (front, back, delete, divider) = createRefs()
-            TextField(
-                value = frontText,
-                onValueChange = setFrontText,
-                modifier = Modifier
-                    .constrainAs(front) {
-                        top.linkTo(parent.top) //자신의 top을 parent의 top에 배치한다
-                    }
-                    .fillMaxWidth()
-                    .padding(8.dp),
-                textStyle = MaterialTheme.typography.h6,
-                placeholder = {
-                    Text(
-                        text = "Front",
-                        style = MaterialTheme.typography.h6,
-                        fontWeight = FontWeight.ExtraBold,
-                        color = Color.LightGray
-                    )
-                },
-                colors = TextFieldDefaults.textFieldColors(
-                    cursorColor = DeepOrange,
-                    backgroundColor = Color.Transparent,
-                    focusedIndicatorColor = Color.Transparent,
-                    unfocusedIndicatorColor = Color.Transparent
-                ),
-                maxLines = 2
-            )
-            Divider(
-                modifier = Modifier
-                    .constrainAs(divider) {
-                        top.linkTo(front.bottom)
-                    }
-                    .fillMaxWidth()
-                    .height(2.dp),
-                color = Color.LightGray
-            )
-            TextField(
-                value = backText,
-                onValueChange = setBackText,
-                modifier = Modifier
-                    .constrainAs(back) {
-                        // 본인의 top을 divider의 bottom에 붙인다.
-                        top.linkTo(divider.bottom)
-                    }
-                    .fillMaxWidth()
-                    .fillMaxHeight()
-                    .padding(8.dp),
-                textStyle = MaterialTheme.typography.body1,
-                placeholder = {
-                    Text(
-                        text = "Back",
-                        style = MaterialTheme.typography.body1,
-                        fontWeight = FontWeight.ExtraBold,
-                        color = Color.LightGray
-                    )
-                },
-                colors = TextFieldDefaults.textFieldColors(
-                    cursorColor = DeepOrange,
-                    backgroundColor = Color.Transparent,
-                    focusedIndicatorColor = Color.Transparent,
-                    unfocusedIndicatorColor = Color.Transparent
-                )
-            )
-            IconButton(
-                onClick = {
-
-                },
-                modifier = Modifier
-                    .constrainAs(delete) {
-                        bottom.linkTo(parent.bottom, 10.dp)
-                        start.linkTo(parent.start, 8.dp)
-                    }
-            ) {
-                Icon(imageVector = Icons.Outlined.Delete, contentDescription = "delete")
-            }
-
-
-        }
-    }
-}

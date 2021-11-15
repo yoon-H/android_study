@@ -30,9 +30,10 @@ import com.example.flashcard.models.DECK_CREATED
 import com.example.flashcard.models.Deck
 import com.example.flashcard.navigation.Screen
 import com.example.flashcard.ui.theme.DeepOrange
+import com.example.flashcard.viewmodel.CheggViewModel
 
 @Composable
-fun HomeScreen(navController: NavHostController) {
+fun HomeScreen(navController: NavHostController, viewModel: CheggViewModel) {
     var (selectedFilterIndex, setFilterIndex) = remember {
         mutableStateOf(0)
     }
@@ -61,7 +62,7 @@ fun HomeScreen(navController: NavHostController) {
         LazyColumn(modifier = Modifier.padding(16.dp)) {
             when (selectedFilterIndex) {
                 0 ->
-                    SampleDataSet.deckSample.forEach {
+                    viewModel.myDeckList.forEach {
                         item {
                             DeckItem(
                                 deck = it,
@@ -75,7 +76,7 @@ fun HomeScreen(navController: NavHostController) {
                         }
                     }
                 1 ->
-                    SampleDataSet.deckSample.filter { it.bookmarked }.forEach {
+                    viewModel.myDeckList.filter { it.bookmarked }.forEach {
                         item {
                             DeckItem(deck = it, modifier = Modifier.padding(bottom = 8.dp))
                             {
@@ -86,7 +87,7 @@ fun HomeScreen(navController: NavHostController) {
                         }
                     }
                 2 ->
-                    SampleDataSet.deckSample.filter { it.deckType == DECK_CREATED }.forEach {
+                    viewModel.myDeckList.filter { it.deckType == DECK_CREATED }.forEach {
                         item {
                             DeckItem(deck = it, modifier = Modifier.padding(bottom = 8.dp))
                             {
