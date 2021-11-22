@@ -29,8 +29,10 @@ import com.example.flashcard.navigation.Screen
 import com.example.flashcard.screens.*
 import com.example.flashcard.ui.theme.DeepOrange
 import com.example.flashcard.viewmodel.CheggViewModel
+import com.google.accompanist.pager.ExperimentalPagerApi
 
 class MainActivity : ComponentActivity() {
+    @ExperimentalPagerApi //페이저를 쓸 수 있는 어노테이션(annotation)
     @ExperimentalComposeApi
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -165,11 +167,6 @@ fun MyProgressBar(
         color = color,
         backgroundColor = Color.LightGray
     )
-}
-
-@Composable
-fun Greeting(name: String) {
-    Text(text = "Hello $name!")
 }
 
 //@Preview(showBackground = true)
